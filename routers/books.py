@@ -2,7 +2,7 @@
 from fastapi import APIRouter,Depends,HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Annotated
+from typing import Annotated,Optional
 from models import Books
 from schema import BooksModel,BookOut
 from database import get_db
@@ -74,6 +74,22 @@ async def delbook(id:int,db:Annotated[AsyncSession,Depends(get_db)]):
 
     return book
 
+@router.get('/shbooks/',response_model=BookOut)
+async def book_serch(title:str,db:AsyncSession=Depends(get_db)):
+    query = select(Books).where(Books.title == title)
+    book = await db.execute(query)
+    book = book.scalar_one_or_none()
+    return book
 
 
-
+@router.get('/filbooks/',response_model=list[BookOut])
+async def book_filter(author:Optional[str]=None,category:Optional[str]=None,db:AsyncSession=Depends(get_db)):
+    if author:
+        query = select(Books).where(Books.author == author)
+    elif category:
+        query = select(Books).where(Books.category == category)    
+    
+    books = await db.execute(query)
+    books = books.scalars().all()
+    return books
+    
