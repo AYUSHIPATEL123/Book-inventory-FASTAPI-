@@ -30,3 +30,8 @@ class UserOut(BaseModel):
     role:UserRole
     is_active:bool
     createdAt:date
+
+class Login(BaseModel):
+    email:str
+    password:str
+    

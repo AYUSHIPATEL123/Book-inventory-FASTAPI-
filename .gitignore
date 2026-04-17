@@ -1,0 +1,12 @@
+.venv
+alembic.ini
+.__pycache__/
+app/db/migrations/
+app/db/seeders/
+app/db/seeders/__pycache__/
+app/db/migrations/versions/
+app/db/migrations/versions/__pycache__/
+app/__pycache__/
+tests/__pycache__/
+.alembic
+.env*
