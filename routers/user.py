@@ -31,23 +31,26 @@ async def users(db:Annotated[AsyncSession,Depends(get_db)],access:UserOut=Depend
     return users
 
 @router.put('/update-user/{id}',response_model=UserOut)
-async def register(data:UserModel,db:Annotated[AsyncSession,Depends(get_db)],id:int,access:UserOut=Depends(required_roles("admin"))):
-     
-        user = await db.get(User,id)
+async def register(data:UserModel,db:Annotated[AsyncSession,Depends(get_db)],id:int,access:UserOut=Depends(required_roles("admin","user"))):
 
-        if not user:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        if access.role == "user" and  not id == access.id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="you are not authorize to change other's data")
+        else:      
+            user = await db.get(User,id)
 
-        user.email=data.email
-        user.username=data.username
-        user.role=data.role
-        user.password = hash_pass(data.password)
+            if not user:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-        await db.commit()
+            user.email=data.email
+            user.username=data.username
+            user.role=data.role
+            user.password = hash_pass(data.password)
 
-        await db.refresh(user)
+            await db.commit()
 
-        return user
+            await db.refresh(user)
+
+            return user
 
     
 @router.delete('/del-user/{id}')
@@ -62,7 +65,5 @@ async def del_user(db:Annotated[AsyncSession,Depends(get_db)],id:int,access:User
 
     await db.commit()
     return {"message":f'user with id {id} has been deleted'}
-
-
 
 

@@ -36,6 +36,7 @@ def get_jwt_token(email:str,role:str):
         return token
     
     except PyJWTError as e:
+        
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="envalid credencial")
     
 
@@ -82,7 +83,7 @@ def required_roles(*roles):
         
         if user.role not in roles:
             
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Not allowed")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Not allowed for this action")
         
         return user
     

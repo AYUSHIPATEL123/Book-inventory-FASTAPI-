@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter,Depends,HTTPException
+from fastapi import APIRouter,Depends,HTTPException,status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated,Optional
@@ -44,6 +44,7 @@ async def addBook(data:BooksModel,db:Annotated[AsyncSession,Depends(get_db)],acc
 
     return book
 
+
 # update book
 @router.put('/update-book/{id}',response_model=BookOut)
 async def chbook(id:int,data:BooksModel,db:AsyncSession=Depends(get_db),access:UserOut=Depends(required_roles("admin"))):
@@ -64,6 +65,7 @@ async def chbook(id:int,data:BooksModel,db:AsyncSession=Depends(get_db),access:U
 
     return book
 
+
 # delete book
 @router.delete('/del-book/{id}',response_model=BookOut)
 async def delbook(id:int,db:Annotated[AsyncSession,Depends(get_db)],access:UserOut=Depends(required_roles("admin"))):
@@ -71,13 +73,14 @@ async def delbook(id:int,db:Annotated[AsyncSession,Depends(get_db)],access:UserO
     book = await db.get(Books,id)
 
     if not book:
-        raise HTTPException(status_code=404,detail=f"book with id {id} is not available.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"book with id {id} is not available.")
     
     await db.delete(book)
     
     await db.commit()
 
-    return book
+    raise HTTPException(status_code=status.HTTP_200_OK,detail=f"book with id {id} has been deleted")
+
 
 @router.get('/shbooks/',response_model=BookOut)
 async def book_serch(title:str,db:AsyncSession=Depends(get_db),access:UserOut=Depends(required_roles("admin","user"))):
