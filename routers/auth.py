@@ -1,18 +1,19 @@
-from fastapi import APIRouter,Depends,HTTPException,status
+from fastapi import APIRouter,Depends,HTTPException,status,BackgroundTasks
 from typing import Annotated
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from schema import UserOut , UserModel ,Login
 from database import get_db
 from models import User
-from service import hash_pass,verify_pass,get_jwt_token,get_current_user
+from service import hash_pass,verify_pass,get_jwt_token,get_current_user,send_email
+
 
 
 
 router = APIRouter()
 
 @router.post('/register',response_model=UserOut)
-async def register(data:UserModel,db:Annotated[AsyncSession,Depends(get_db)]):
+async def register(data:UserModel,db:Annotated[AsyncSession,Depends(get_db)],backeground_task:BackgroundTasks):
      
     try:
 
@@ -23,9 +24,18 @@ async def register(data:UserModel,db:Annotated[AsyncSession,Depends(get_db)]):
         await db.commit()
 
         await db.refresh(user)
+        data = {
+            "email":user.email,
+            "sub":"user register",
+            "body":"you have register in to BOOK INVENTERY API"
+        }
 
+        backeground_task.add_task(send_email,data)
+        
         return user
+    
     except Exception as e:
+        
         raise HTTPException(status_code=status.HTTP_207_MULTI_STATUS,detail=f'{e}')
 
 @router.post('/login')

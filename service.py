@@ -10,6 +10,8 @@ from datetime import datetime,timedelta
 from dotenv import load_dotenv
 import os
 from models import User
+from fastapi_mail import FastMail,MessageSchema
+from config.email_config import conf
 
 load_dotenv()
 
@@ -88,3 +90,20 @@ def required_roles(*roles):
         return user
     
     return get_user
+
+async def send_email(data:dict):
+
+    message_schema=MessageSchema(
+        recipients=[data['email'],],
+        subject=data['sub'],
+        body=data['body'],
+        subtype='plain',
+        
+    )
+
+    fm = FastMail(conf)
+
+    await fm.send_message(message=message_schema)
+    print("email message send successfuly.....")
+
+    return "email message send successfuly"

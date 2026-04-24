@@ -34,4 +34,4 @@ class UserOut(BaseModel):
 class Login(BaseModel):
     email:str
     password:str
-    
+
