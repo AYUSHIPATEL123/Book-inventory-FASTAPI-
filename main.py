@@ -1,8 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,Request
 from routers import books,auth,user
 import models
-from database import engine,AsyncSessionLocal
-
+from database import engine
+from config.looging_config import make_logger
 
 app = FastAPI()
 
@@ -15,4 +15,16 @@ async def crt_tbl():
     async with engine.begin() as conn:
         await conn.run_sync(models.Base.metadata.create_all)
         
-        
+logger = make_logger(__name__)
+
+@app.middleware('http')  
+async def logg_request(request:Request,call_next):
+
+    logger.info(f"Request: {request.method} {request.url}")
+
+    response = await call_next(request)
+
+    logger.info(f"Response status: {response.status_code}")
+    
+    return response
+    

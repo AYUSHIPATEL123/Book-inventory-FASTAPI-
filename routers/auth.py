@@ -64,3 +64,5 @@ async def login(data:Login,db:AsyncSession=Depends(get_db)):
         return user_data
 
     
+
+     
