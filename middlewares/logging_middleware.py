@@ -4,6 +4,7 @@ import time
 
 async def looging_middleware(request:Request,call_next):
 
+    print(request.headers.get('user-agent',""))
     start = time.perf_counter()
 
     response = await call_next(request)
