@@ -3,8 +3,13 @@ from routers import books,auth,user
 import models
 from database import engine
 from config.looging_config import make_logger
+from middlewares.logging_middleware import looging_middleware
+from middlewares.rate_limit import rate_limiting
 
 app = FastAPI()
+
+app.middleware("http")(looging_middleware)
+app.middleware("http")(rate_limiting)
 
 app.include_router(books.router,prefix='/book')
 app.include_router(auth.router,prefix='/auth')

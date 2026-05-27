@@ -83,7 +83,7 @@ async def delbook(id:int,db:Annotated[AsyncSession,Depends(get_db)],access:UserO
 
 
 @router.get('/shbooks/',response_model=BookOut)
-async def book_serch(title:str,db:AsyncSession=Depends(get_db),access:UserOut=Depends(required_roles("admin","user"))):
+async def book_search(title:str,db:AsyncSession=Depends(get_db),access:UserOut=Depends(required_roles("admin","user"))):
     
     query = select(Books).where(Books.title == title)
     
